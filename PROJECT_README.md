@@ -1,6 +1,8 @@
 # Emoji Twitter Clone
 ## Description
 - Exploring the Create T3 App Structure
+    - Documentation
+        - [T3 Docs](https://create.t3.gg/)
     - Creating a Twitter Clone
         * First iteration being an Emoji Twitter Clone
         * Open Source T3 Components
@@ -17,5 +19,5 @@
             - (5) commands run in script section
 
 - Steps Performed
-    - (1) Run create t3-app@latest
+    - (1) Ran create t3-app@latest
     - (2) Choose Typescript -> (2a) Select Prisma, Tailwind, trpc
