@@ -21,3 +21,9 @@
 - Steps Performed
     - (1) Ran create t3-app@latest
     - (2) Choose Typescript -> (2a) Select Prisma, Tailwind, trpc
+    - (3) setup db on planetscale -> vercel deployment
+        * `app.planetscale.com` -> `vercel.com`
+        1. on prisma, ran `npm install prisma` -> `npx prisma init`
+    - (4) following the insertion of data into schema.prisma -> ran `npx prisma studio` -> received errors on studio site on example
+        * db is not synchronized with current schema as it expects model Example schema in .prisma
+    - (5) run `npx prisma db push` to update db expectation
