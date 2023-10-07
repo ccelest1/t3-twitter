@@ -31,7 +31,7 @@
             1. implemented authmiddleware in `middleware.ts` and added a console.log()
             2. console.log() outputted when starting local host via `npm run dev`
         * after adding middleware -> index.tsx
-            1. add block that determines what a user sees depending on signIn state
+            1. add block that determines what a user sees depending on signIn state i.e. fundamental auth
             ```tsx
                 return(
                     ...
@@ -41,6 +41,36 @@
                     </div>
                 )
             ```
+    - (9) Implement logging system in order to understand how production is going w/ Axiom
+        * had to perform `npm install -g prisma`
+        * then went through vercel to add axiom to project
+    - (10) rewrote schema in schema.prisma, deleted example model and create `post` model -> `npx prisma db push`-> generate new db locally by `npm install`
+    - (11) coding
+        - example.ts
+            * change last line to `return ctx.prisma.post.findMany();`
+            * may have to restart server
+                - ctrl + shift + p -> restart `ts server`
+        - index.tsx
+            * going to add a line `const {data} = api.posts.getAll.useQuery()` that has now correct type
+        - created new router for posts `posts.ts`
+            * `postsRouter=createTRPCRouter`
+            * `ctx.prisma.post.findMany()`
+        - root.ts
+            * add new key `posts: postsRouter` i.e `router_name: router_nameRouter`
+            * get rid of example router as it wasn't being used
+        - index.ts
+            * we want to use `api.router_name.getAll.useQuery()` with UQ() method in order to obtain data
+            * then map that variable to display posts
+                - number of posts in an array object that are to be displayed
+    - (12) can use prisma studio in order to create posts
+        * made changes to db -> reset env via `npx prisma studio` -> `npm run dev `
+        * added a record via prisma studio -> now can see a post when logging in with github
+- trpc
+    * allows one to create server functions that run on a server, fetch data in correct shape -> authenticate to user w/o user to directly connect to db
+    * currently at this point we had an example.ts router
+    * going to create a posts.ts router
+
+
 - CI/CD
     - Settings of Project: Assumption that Deployment Target is Vercel (gitlab configuration)
     - Created yaml file ()
