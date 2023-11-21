@@ -68,19 +68,49 @@
     * added a record via prisma studio -> now can see a post when logging in with github
 
 ### PART 2
+- change styling using globals.css
+    * added a body dictionary that contains `@apply tag` with chosen background, text color
+- depending on where you want an effect of structure to take place, need to choose between comps `index.tsx` v `_app.tsx`
+- in index.tsx, implementing styling in order to provide twitter look
+    * testing <div className='flex flex-col'>
+        - added isLoading check, data check
+- in order to get imageUrl from user, had to get to user.user
+    * user data is nested within user key -> `user.user.imageUrl`
+    * fix - in order to get imageUrl to show had to modify `CreatePostWizard` to incorporate `useUser().user`
+* get user data from id with single call
 
-- trpc
-    * allows one to create server functions that run on a server, fetch data in correct shape -> authenticate to user w/o user to directly connect to db
-    * currently at this point we had an example.ts router
-    * going to create a posts.ts router
+### 11/19/23
+- performed styling on posts.ts
+- on posts.ts changed
+    ```js
+    post,
+    author: users.find((user)=>user.id===post.authorId)
+    ```
+    to
+    ```js
+    post,
+    author: {
+        ...author,
+        username:author.username
+    }
+    // now strict typing as it relates to author?.username - now constrained to type string
+    ```
+- in order to get spacing between username and time they posted `index.tsx`
+    * use a span class following username, `font-thin`
+- in order to get accurate dates, `npm install dayjs`
+
+#### TRPC
+* allows one to create server functions that run on a server, fetch data in correct shape -> authenticate to user w/o user to directly connect to db
+* currently at this point we had an example.ts router
+* going to create a posts.ts router
 
 
-- CI/CD
-    - Settings of Project: Assumption that Deployment Target is Vercel (gitlab configuration)
-    - Created yaml file ()
-        - Minimal yml workflow file that installs node modules, runs typescript, typechecking, runs lint for repo that uses npm
-            - (1) Starts with 'node' Docker image (base image for CI environment)
-            - (2) Define stage 'build' to run build commands
-            - (3) 'before_script' section runs before each job in pipeline and 'npm install' runs and installs node.js dependencies
-            - (4) single build job that runs in build stage
-            - (5) commands run in script section
+### CI/CD
+- Settings of Project: Assumption that Deployment Target is Vercel (gitlab configuration)
+- Created yaml file ()
+    - Minimal yml workflow file that installs node modules, runs typescript, typechecking, runs lint for repo that uses npm
+        - (1) Starts with 'node' Docker image (base image for CI environment)
+        - (2) Define stage 'build' to run build commands
+        - (3) 'before_script' section runs before each job in pipeline and 'npm install' runs and installs node.js dependencies
+        - (4) single build job that runs in build stage
+        - (5) commands run in script section
