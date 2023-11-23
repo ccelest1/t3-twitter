@@ -2,15 +2,14 @@ import { type NextPage } from "next";
 import Head from "next/head";
 import { RouterOutputs, api } from "~/utils/api";
 import { useUser, SignInButton, SignOutButton } from "@clerk/nextjs";
-import { SignedOut } from "@clerk/nextjs/dist/types/client-boundary/controlComponents";
-import { type } from "os";
+import Image from "next/image";
 
 const CreatePostWizard = () => {
   const user = useUser().user;
   if (!user) return null;
   return (
     <div className='flex gap-3'>
-      <img
+      <Image
         src={user?.imageUrl}
         alt='profile img'
         className='h-14 w-14 rounded-full'
@@ -33,8 +32,9 @@ const PostView = (props: PostWithUser) => {
     <div key={post.id}
       className='flex gap-3 border-b p-4 border-slate-400 p-4'
     >
-      <img
+      <Image
         src={author?.profileImage}
+        alt='profile Image'
         className='h-14 w-14 rounded-full'
       />
       <div className="flex flex-col">
@@ -89,6 +89,7 @@ const Home: NextPage = () => {
           </div>
           <div className='flex flex-col'>
             {[...data!, ...data!]?.map((fullPost) => (
+              //dump prop
               <PostView {...fullPost}
                 key={fullPost.post.id}
               />
