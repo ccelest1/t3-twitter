@@ -98,6 +98,15 @@
 - in order to get spacing between username and time they posted `index.tsx`
     * use a span class following username, `font-thin`
 - in order to get accurate dates, `npm install dayjs`
+    * user relativeTime w/ dayjs `import relativeTime from 'dayjs/...` -> `dayjs.extend(relativeTime)`
+
+### 11/25/23
+- ran into `TypeError: Cannot read properties of undefined (reading 'current')`
+    * solution: start prisma studio server
+- ran into `image with src ... is missing required width property`
+    * updated with pixel # for both images
+- ran into domain not be configured under images in next.config.js
+    - updated `next.config.mjs`, config to have a dict `images` with domains key containing domain as value
 
 #### TRPC
 * allows one to create server functions that run on a server, fetch data in correct shape -> authenticate to user w/o user to directly connect to db

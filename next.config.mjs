@@ -18,5 +18,19 @@ const config = {
     locales: ["en"],
     defaultLocale: "en",
   },
+  images: {
+    domains: ['img.clerk.com'],
+  }
 };
+
+// module.exports = {
+//   images: {
+//     remotePatterns: [
+//       {
+//         protocol: 'https',
+//         hostname: 'img.clerk.com'
+//       }
+//     ]
+//   }
+// }
 export default config;
