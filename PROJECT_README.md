@@ -107,6 +107,13 @@
     * updated with pixel # for both images
 - ran into domain not be configured under images in next.config.js
     - updated `next.config.mjs`, config to have a dict `images` with domains key containing domain as value
+- (CONTINUE)
+    * import loading spinner - found tailwind spinner and created comp in `load.tsx` encapsulated by LoadingSpinner comp
+    * then in order to get aligned to middle of page created `LoadingPage` comp in load.tsx
+        - modified css in order to have loading spinner in middle of page
+    * separated Home and Feed in order to provide better state in browser due to clarity in processes
+
+-
 
 #### TRPC
 * allows one to create server functions that run on a server, fetch data in correct shape -> authenticate to user w/o user to directly connect to db
