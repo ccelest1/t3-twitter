@@ -52,17 +52,25 @@
             - ctrl + shift + p -> restart `ts server`
     - index.tsx
         * going to add a line `const {data} = api.posts.getAll.useQuery()` that has now correct type
-        * CONSULT TRPC SECTION BELOW
-    - created new router for posts `posts.ts`
-        * `postsRouter=createTRPCRouter`
-        * `ctx.prisma.post.findMany()`
-    - root.ts
-        * add new key `posts: postsRouter` i.e `router_name: router_nameRouter`
-        * get rid of example router as it wasn't being used
-    - index.ts
-        * we want to use `api.router_name.getAll.useQuery()` with UQ() method in order to obtain data
-        * then map that variable to display posts
-            - number of posts in an array object that are to be displayed
+        * __CONSULT TRPC SECTION BELOW__
+
+#### TRPC
+* allows one to create server functions that run on a server, fetch data in correct shape -> authenticate to user w/o user to directly connect to db
+* currently at this point we had an `example.ts` router
+* going to create a posts.ts router
+
+### CONTINUED FROM PART 1
+- created new router for posts `posts.ts`
+    * `postsRouter=createTRPCRouter`
+    * `ctx.prisma.post.findMany()`
+- root.ts
+    * add new key `posts: postsRouter` i.e `router_name: router_nameRouter`
+    * get rid of example router as it wasn't being used
+- index.ts
+    * we want to use `api.router_name.getAll.useQuery()` with UQ() method in order to obtain data
+    * then map that variable to display posts
+        - number of posts in an array object that are to be displayed
+
 - (12) can use prisma studio in order to create posts
     * made changes to db -> reset env via `npx prisma studio` -> `npm run dev `
     * added a record via prisma studio -> now can see a post when logging in with github
@@ -113,13 +121,30 @@
         - modified css in order to have loading spinner in middle of page
     * separated Home and Feed in order to provide better state in browser due to clarity in processes
 
--
+## Setting up Posting
+- Knowing if someone is a user, if they have correct permissions
+    * modify trpc.ts (`ctx` (context) is instantiated from createcontext in `trpc.ts` used to process every request going through tRPC endpoint)
+    * modify InnerTRPCcontext in order to contain info on session and user
+    * then create a procedure that stems from t that uses middleware in order to enforce auth that is exported as a private procedure
+    - final step: we then use `.input()` in order to insert/define content entity
+        * using `z from zod` allows us to verify that info is correct, verifiable string type, to be used an input for post
 
-#### TRPC
-* allows one to create server functions that run on a server, fetch data in correct shape -> authenticate to user w/o user to directly connect to db
-* currently at this point we had an example.ts router
-* going to create a posts.ts router
+- modify createPostWizard
+    * create with functional components a way to store user input for posts and to allow stored posts to be displayed
+    * Post button will trigger use of state via onClick handler
 
+- in order to allow for posting
+    *  modify createTRPCContext
+        - instead of getting general user, extract userID from user info gained from getAuth, return `userId`
+        - in `enforcedIsAuthed` extract userID from context
+        - utilize userId in postsRouter `privateProcedure`
+
+- allowing for auto reload, clearing of input field
+    * add `isLoading: isPosting` and then with input tag in `CreatePostWizard`, set disabled flag to `isPosting`
+    * update existing posts is to get context of entire cache
+        - establish a variable to store `api.useContext`
+        - create a `isLoading: isPosting` prop
+        - then an onSuccess that allows for us to refresh input and refresh feed
 
 ### CI/CD
 - Settings of Project: Assumption that Deployment Target is Vercel (gitlab configuration)
@@ -130,3 +155,4 @@
         - (3) 'before_script' section runs before each job in pipeline and 'npm install' runs and installs node.js dependencies
         - (4) single build job that runs in build stage
         - (5) commands run in script section
+- reset commits with `git reset`

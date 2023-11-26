@@ -7,11 +7,22 @@ import Image from "next/image";
 import dayjs from "dayjs";
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { LoadingPage, LoadingSpinner } from "~/comps/load";
+import { useState } from "react";
 dayjs.extend(relativeTime);
 
 const CreatePostWizard = () => {
   const user = useUser().user;
   if (!user) return null;
+  const [input, setInput] = useState("")
+  const ctx = api.useContext();
+  // mutate requires args
+  const { mutate, isLoading: isPosting } = api.posts.create.useMutation({
+    onSuccess: () => {
+      setInput("");
+      void ctx.posts.getAll.invalidate();
+    }
+  }
+  );
   return (
     <div className='flex gap-3'>
       <Image
@@ -24,7 +35,22 @@ const CreatePostWizard = () => {
       <input
         className='grow bg-transparent outline-none'
         placeholder='type emojis!'
+        value={input}
+        type="text"
+        onChange={(e) => {
+          setInput(e.target.value)
+        }}
+        //disable input while posting
+        disabled={isPosting}
       />
+      <button
+        className="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow"
+        onClick={() => mutate({
+          content: input
+        })}
+      >
+        Post
+      </button>
     </div>
   );
 }
@@ -79,7 +105,7 @@ const Feed = () => {
   )
   return (
     <div className='flex flex-col'>
-      {[...data!, ...data!]?.map((fullPost) => (
+      {data.map((fullPost) => (
         //dump prop
         <PostView {...fullPost}
           key={fullPost.post.id}
@@ -115,9 +141,11 @@ const Home: NextPage = () => {
             }
             {isSignedIn &&
               <>
-                <div className="ml-auto">
+                <button
+                  className="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow"
+                >
                   <SignOutButton />
-                </div>
+                </button>
                 <div>
                   <CreatePostWizard />
                 </div>
