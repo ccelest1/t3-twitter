@@ -62,7 +62,7 @@ export const postsRouter = createTRPCRouter({
     // use zod (validator for forms) in order to insert content
     // allows for a function that serves as midpoint between auth and profile info
     create: privateProcedure.input(z.object({
-        content: z.string().emoji().min(1).max(280),
+        content: z.string().emoji("Only Emojis Please").min(1).max(280),
     }
     )).mutation(async ({ ctx, input }) => {
         // non-null assertion operator used next to currentUser

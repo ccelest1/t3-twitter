@@ -5,10 +5,10 @@ import type { RouterOutputs } from "~/utils/api";
 import { useUser, SignInButton, SignOutButton } from "@clerk/nextjs";
 import Image from "next/image";
 import dayjs from "dayjs";
-import relativeTime from 'dayjs/plugin/relativeTime'
 import { LoadingPage, LoadingSpinner } from "~/comps/load";
 import { useState } from "react";
-dayjs.extend(relativeTime);
+import toast from "react-hot-toast";
+
 
 const CreatePostWizard = () => {
   const user = useUser().user;
@@ -20,6 +20,15 @@ const CreatePostWizard = () => {
     onSuccess: () => {
       setInput("");
       void ctx.posts.getAll.invalidate();
+    },
+    onError: (e) => {
+      const errorMessage = e.data?.zodError?.fieldErrors.content;
+      console.log(errorMessage)
+      if (errorMessage && errorMessage[0]) {
+        toast.error(errorMessage[0])
+      } else {
+        toast.error('Please post a valid emoji post!')
+      }
     }
   }
   );
@@ -34,23 +43,36 @@ const CreatePostWizard = () => {
       />
       <input
         className='grow bg-transparent outline-none'
-        placeholder='type emojis!'
+        placeholder='Type some emojis for your status update!'
         value={input}
         type="text"
         onChange={(e) => {
           setInput(e.target.value)
         }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            if (input !== "") {
+              mutate({
+                content: input
+              });
+            }
+          }
+        }}
         //disable input while posting
         disabled={isPosting}
       />
-      <button
-        className="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow"
+      {input !== "" && !isPosting && (<button
+        className="bg-black hover:bg-white-100 text-white-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow"
         onClick={() => mutate({
           content: input
         })}
       >
         Post
-      </button>
+      </button>)}
+      {isPosting && <div
+        className="flex justify-center items-center"
+      ><LoadingSpinner size={20} /></div>}
     </div>
   );
 }
@@ -142,7 +164,7 @@ const Home: NextPage = () => {
             {isSignedIn &&
               <>
                 <button
-                  className="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow"
+                  className="mb-6 bg-black hover:bg-gray-100 text-white-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow"
                 >
                   <SignOutButton />
                 </button>

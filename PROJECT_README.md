@@ -154,6 +154,18 @@
     * package via upstash
     - added `{RateLimit}` to `posts.ts` in order to stop users from spamming posts
         * `const {success} = await ratelimit.limit(authorId)` -> `if(!success){throw tcpError}`
+- display error message when a user is unable to post
+    * use toast for implementation ->
+- encountered this error `Could not find files for / in .next/build-manifest.json`
+    * deleted `.next` and ran `npm add webpack --dev`
+- additions
+    - in `src/pages/index.tsx` added `onError...toast.error()` in `CreatePostWizard`
+    - in `src/pages/app.tsx` added `<Toaster position='bottom-center'/>`
+        * now post errors are shown on bottom of web page
+    - revised toast.error to include a zod validation error using `e -> e.data.zodError.fieldErrors.content` -> in posts.ts, `.emoji('only emojis)` (validation process -> client)
+
+- prevent double posting -> post needs to be disabled when in loading state
+    *
 
 ### WHEN GONE
 - Revisiting app:
