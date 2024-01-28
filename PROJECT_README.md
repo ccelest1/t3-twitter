@@ -89,6 +89,9 @@
 
 ### 11/19/23
 - performed styling on posts.ts
+- define post type, `type PostsWithUser` -> return post with user info by selecting a particular post indexed in an array
+- PostView now returns posts with desired user/post info
+- including `PostView` in Feed now allows us to map over each post with a proper id
 - on posts.ts changed
     ```js
     post,
@@ -145,6 +148,17 @@
         - establish a variable to store `api.useContext`
         - create a `isLoading: isPosting` prop
         - then an onSuccess that allows for us to refresh input and refresh feed
+
+### 1.27.23
+- add rateLimiter in order to prevent users from spamming posts into feed
+    * package via upstash
+    - added `{RateLimit}` to `posts.ts` in order to stop users from spamming posts
+        * `const {success} = await ratelimit.limit(authorId)` -> `if(!success){throw tcpError}`
+
+### WHEN GONE
+- Revisiting app:
+    1. start up by visiting `app.planetscale.com` to wake up db
+    2. start prisma db `npx prisma db push`
 
 ### CI/CD
 - Settings of Project: Assumption that Deployment Target is Vercel (gitlab configuration)

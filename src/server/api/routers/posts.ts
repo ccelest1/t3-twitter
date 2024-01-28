@@ -3,6 +3,8 @@ import { currentUser, type User } from "@clerk/nextjs/dist/types/server";
 import { z } from 'zod';
 import { createTRPCRouter, privateProcedure, publicProcedure } from "~/server/api/trpc";
 import { TRPCError } from "@trpc/server";
+import { Ratelimit } from "@upstash/ratelimit";
+import { Redis } from "@upstash/redis";
 
 // created a filterUser method in order to make sure non-essential info is not returned when returning userinfo
 const filterUser = (user: User) => {
@@ -12,6 +14,19 @@ const filterUser = (user: User) => {
         profileImage: user.imageUrl
     }
 }
+
+// allow 3-reqs/1-min
+const ratelimit = new Ratelimit({
+    redis: Redis.fromEnv(),
+    limiter: Ratelimit.slidingWindow(3, "1 m"),
+    analytics: true,
+    /**
+     * Optional prefix for the keys used in redis. This is useful if you want to share a redis
+     * instance with other applications and want to avoid key collisions. The default prefix is
+     * "@upstash/ratelimit"
+     */
+    prefix: "@upstash/ratelimit",
+});
 
 // pp - generate method that client calls (getAll should be public allowing any non-auth user to see all posts)
 // now using .map(filterUser) in order to only return required information
@@ -33,7 +48,7 @@ export const postsRouter = createTRPCRouter({
             const author = users.find((user) => user.id === post.authorId)
             if (!author || !author.username) throw new TRPCError({
                 code: 'INTERNAL_SERVER_ERROR',
-                message: 'post author not found'
+                message: "Post's Author not found"
             })
             return {
                 post,
@@ -53,6 +68,11 @@ export const postsRouter = createTRPCRouter({
         // non-null assertion operator used next to currentUser
         if (!ctx.userId) return null;
         const authorId = ctx.userId
+
+        const { success } = await ratelimit.limit(authorId);
+        if (!success) throw new TRPCError({
+            code: "TOO_MANY_REQUESTS"
+        })
         const post = await ctx.prisma.post.create({
             data: {
                 authorId,
