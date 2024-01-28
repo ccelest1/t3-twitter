@@ -172,6 +172,7 @@
 
 ### 1.28.23
 * DESIRE: click on username, click on profile image -> redirect to profile page / click on post -> take to an individual post page
+- fixed linting (eod)
 
 ### WHEN GONE
 - Revisiting app:
