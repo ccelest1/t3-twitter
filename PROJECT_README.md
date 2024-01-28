@@ -165,7 +165,13 @@
     - revised toast.error to include a zod validation error using `e -> e.data.zodError.fieldErrors.content` -> in posts.ts, `.emoji('only emojis)` (validation process -> client)
 
 - prevent double posting -> post needs to be disabled when in loading state
-    *
+    * made changes in index.tsx for the CreatePostWizard
+    * used onKeyDown in order to allow users to press enter to submit post
+-  For Future:
+    * instead of waiting for server to block on validations, perform on client side using zod
+
+### 1.28.23
+* DESIRE: click on username, click on profile image -> redirect to profile page / click on post -> take to an individual post page
 
 ### WHEN GONE
 - Revisiting app:

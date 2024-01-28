@@ -8,6 +8,8 @@ import dayjs from "dayjs";
 import { LoadingPage, LoadingSpinner } from "~/comps/load";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import relativeTime from 'dayjs/plugin/relativeTime';
+dayjs.extend(relativeTime)
 
 
 const CreatePostWizard = () => {
