@@ -14,8 +14,8 @@ dayjs.extend(relativeTime)
 
 const CreatePostWizard = () => {
   const user = useUser().user;
-  if (!user) return null;
   const [input, setInput] = useState("")
+  if (!user) return null;
   const ctx = api.useContext();
   // mutate requires args
   const { mutate, isLoading: isPosting } = api.posts.create.useMutation({
@@ -34,11 +34,12 @@ const CreatePostWizard = () => {
     }
   }
   );
+  // added ?? for username in order to avoid an invalid type 'string | null', provides a default value of empty string if null or undefined
   return (
     <div className='flex gap-3'>
       <Image
         src={user?.imageUrl}
-        alt={`@${user?.username}'s user image`}
+        alt={`@${user?.username ?? ""}'s user image`}
         className='h-14 w-14 rounded-full'
         width={56}
         height={56}
