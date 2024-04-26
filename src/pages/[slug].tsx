@@ -2,7 +2,6 @@ import { type NextPage } from "next";
 import Head from "next/head";
 import { api } from "~/utils/api";
 import { createServerSideHelpers } from '@trpc/react-query/server';
-import { createContext } from '~/server/context';
 import superjson from 'superjson';
 import { appRouter } from "~/server/api/root";
 import { prisma } from "~/server/db";
