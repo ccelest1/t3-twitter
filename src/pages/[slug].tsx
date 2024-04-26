@@ -1,166 +1,110 @@
 import { type NextPage } from "next";
 import Head from "next/head";
 import { api } from "~/utils/api";
-import type { RouterOutputs } from "~/utils/api";
-import { useUser, SignInButton, SignOutButton } from "@clerk/nextjs";
+import { createServerSideHelpers } from '@trpc/react-query/server';
+import { createContext } from '~/server/context';
+import superjson from 'superjson';
+import { appRouter } from "~/server/api/root";
+import { prisma } from "~/server/db";
+import type { GetStaticProps } from "next";
+import { PageLayout } from "~/comps/profLayout";
 import Image from "next/image";
-import dayjs from "dayjs";
-import { LoadingPage, LoadingSpinner } from "~/comps/load";
-import { useState } from "react";
-import toast from "react-hot-toast";
-import relativeTime from 'dayjs/plugin/relativeTime';
-dayjs.extend(relativeTime)
+import { LoadingPage } from "~/comps/load";
+import { PostView } from "~/comps/postView";
 
-
-const CreatePostWizard = () => {
-  const user = useUser().user;
-  const [input, setInput] = useState("")
-  if (!user) return null;
-  const ctx = api.useContext();
-  // mutate requires args
-  const { mutate, isLoading: isPosting } = api.posts.create.useMutation({
-    onSuccess: () => {
-      setInput("");
-      void ctx.posts.getAll.invalidate();
-    },
-    onError: (e) => {
-      const errorMessage = e.data?.zodError?.fieldErrors.content;
-      console.log(errorMessage)
-      if (errorMessage && errorMessage[0]) {
-        toast.error(errorMessage[0])
-      } else {
-        toast.error('Please post a valid emoji post!')
-      }
-    }
-  }
-  );
-  // added ?? for username in order to avoid an invalid type 'string | null', provides a default value of empty string if null or undefined
+const ProfileFeed = (props: { userId: string }) => {
+  const { data, isLoading } = api.posts.getPostsByUserId.useQuery({ userId: props.userId })
   return (
-    <div className='flex gap-3'>
-      <Image
-        src={user?.imageUrl}
-        alt={`@${user?.username ?? ""}'s user image`}
-        className='h-14 w-14 rounded-full'
-        width={56}
-        height={56}
-      />
-      <input
-        className='grow bg-transparent outline-none'
-        placeholder='Type some emojis for your status update!'
-        value={input}
-        type="text"
-        onChange={(e) => {
-          setInput(e.target.value)
-        }}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            e.preventDefault();
-            if (input !== "") {
-              mutate({
-                content: input
-              });
-            }
-          }
-        }}
-        //disable input while posting
-        disabled={isPosting}
-      />
-      {input !== "" && !isPosting && (<button
-        className="bg-black hover:bg-white-100 text-white-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow"
-        onClick={() => mutate({
-          content: input
-        })}
-      >
-        Post
-      </button>)}
-      {isPosting && <div
-        className="flex justify-center items-center"
-      ><LoadingSpinner size={20} /></div>}
-    </div>
-  );
-}
-
-// generate output types
-// filter to one element in array containing post and corresponding author info
-type PostWithUser = RouterOutputs['posts']['getAll'][number]
-
-const PostView = (props: PostWithUser) => {
-  const { post, author } = props;
-  return (
-    <div key={post.id}
-      className='flex gap-3 border-b p-4 border-slate-400 p-4'
-    >
-      <Image
-        src={author?.profileImage}
-        alt={`@${author.username}'s profile pic`}
-        className='h-14 w-14 rounded-full'
-        width={56}
-        height={56}
-      />
-      <div className="flex flex-col">
-        <div className="flex gap-1 text-slate-300">
-          <span>
-            {`@${author?.username}`}
-          </span>
-          <span className="font-thin">{`• ${dayjs(
-            post.createdAt
-          ).fromNow()}`}</span>
+    !isLoading ? (
+      data ? (
+        <div className="flex flex-col">
+          {data.map((fullPost) => (
+            <PostView
+              {...fullPost}
+              key={fullPost.post.id}
+            />
+          ))}
         </div>
-        <span
-          className="text-2xl"
-        >
-          {post.content}
-        </span>
-      </div>
-    </div>
+      ) : (
+        <div>
+          User has not Posted
+        </div>
+      )
+    ) : (
+      <LoadingPage />
+    )
   )
 
 }
+const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
 
-// clerk, react queries are inverted
-const Feed = () => {
-  const { data, isLoading: postsLoading } = api.posts.getAll.useQuery();
-  if (postsLoading) return (
-    <LoadingPage />
-  )
-  if (!data) return (
-    <div>
-      Something went wrong
-    </div>
-  )
+  const { data, isLoading } = api.profiles.getUserByUsername.useQuery({
+    username,
+  })
+
   return (
-    <div className='flex flex-col'>
-      {data.map((fullPost) => (
-        //dump prop
-        <PostView {...fullPost}
-          key={fullPost.post.id}
-        />
-      ))}
-    </div>
+    !isLoading ? (
+      data ? (
+        <>
+          <Head>
+            <title>{username}</title>
+          </Head>
+          <PageLayout>
+            <div className='relative h-48 bg-slate-600 '>
+              <Image
+                src={data.profileImage}
+                alt={`${data.username ?? ""}'s prof pic`}
+                width={128}
+                height={128}
+                className='absolute bottom-0 left-0 -mb-[64px] ml-4 rounded-full border-4'
+              />
+            </div>
+            <div className="h-[64px]"></div>
+            <div className="p-4 text-2xl font-bold">{`@${username ?? ""}`}</div>
+            <div className="w-full border-b border-slate-400"></div>
+            <ProfileFeed userId={data.id} />
+          </PageLayout>
+        </>
+      ) : (
+        <div>
+          404
+        </div>
+      )) : (
+      <LoadingPage />
+    )
   )
-}
-
-const Home: NextPage = () => {
-  const { isLoaded: userLoaded, isSignedIn } = useUser();
-  // start fetching asap
-  api.posts.getAll.useQuery();
-  // if data has not yet been returned, we can have a Loading placeholder
-  // return empty div if user isn't loaded yet
-  if (!userLoaded) return <div />
-  // fullPost now returns data with post, corresponding author with key being the id of each indv post
-  return (
-    <>
-      <Head>
-        <title>Create T3 App</title>
-        <meta name="description" content="Generated by create-t3-app" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
-      <main className="flex h-screen justify-center">
-        <div>Profile Page</div>
-      </main>
-    </>
-  );
 };
 
-export default Home;
+// prefetch queries on server
+export const getStaticProps: GetStaticProps = async (context) => {
+  const ssg = createServerSideHelpers({
+    router: appRouter,
+    ctx: { prisma, userId: null },
+    transformer: superjson, // optional - adds superjson serialization
+  });
+  const slug = context.params?.slug
+  if (typeof slug !== "string") throw new Error('no slug')
+  const username = slug.replace("@", "")
+
+  // fetch data ahead of time, hydrate via server side props
+  await ssg.profiles.getUserByUsername.prefetch({
+    username
+  });
+
+  return {
+    props: {
+      // takes all fetched data, parsed through static props, hydrate through react query => data is there when page laods
+      trpcState: ssg.dehydrate(),
+      username
+    }
+  }
+}
+
+// indicate what paths are valid
+export const getStaticPaths = () => {
+  return {
+    paths: [], fallback: 'blocking'
+  }
+}
+
+export default ProfilePage;

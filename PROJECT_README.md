@@ -116,7 +116,7 @@
     * solution: start prisma studio server
 - ran into `image with src ... is missing required width property`
     * updated with pixel # for both images
-- ran into domain not be configured under images in next.config.js
+- ran into domain could not be configured under images in next.config.js
     - updated `next.config.mjs`, config to have a dict `images` with domains key containing domain as value
 - (CONTINUE)
     * import loading spinner - found tailwind spinner and created comp in `load.tsx` encapsulated by LoadingSpinner comp
@@ -174,10 +174,47 @@
 * DESIRE: click on username, click on profile image -> redirect to profile page / click on post -> take to an individual post page
 - fixed linting (eod)
 
+### 4.25.24 _finish up_
+- Working on [profile](./src/pages/[slug].tsx), [indv post page](./src/pages/post/[id].tsx)
+    * Incorporating <Link> in index.tsx in `author.name` occurrences allows routing to occur on device (spa) v a full browser refresh
+    * Link tag w/ href = `associated url` pertaining to file path in `_app.tsx`
+    * clicking on username for post redirects to [slug].tsx via `@{author}` {@ implying /pages} and post/[id].tsx via `/post/[id]/`
+- created profile router in `profile.ts` being `server/api/routers/profile.ts` with profileRouter exported and included in root.ts via `profiles:profileRouter`
+
+- in [slug] being profilePage -> used ternary ops in order to render proper page depending on if we are loading, if data is/isn't available
+    * now need to implement a filter for user data as we are returning more than req -> `/helpers` in `/server`
+    * exported filterUser function to file helpers and imported it to both posts and profile routers -> now in [slug] we only return output of `filterUser(user)`
+
+- w/ trpc, no type definitions in routers/posts.ts -> built through inference, strict validation using zod, no need for manual type annotations
+
+- !__Regarding server side__!
+    * ```ts
+        export const getServerComps = async(context)=>{
+            // runs on every req of page on vercel
+            // blocks every req, no cached pages, can't get types, no use of trpc
+        }
+      ```
+    - instead use ssg trcp helper -> preyhdrate ahead of time
+        * [current trpc docs](https://trpc.io/docs/client/nextjs/server-side-helpers)
+        * implemented helper in [slug].tsx allowing for improved data retrieval
+
+- Layout and Styling
+    - exported pageLayout and adjusted index.tsx
+    - fixed column layout via overflow-y-scroll and disabled page overscroll via globals.css
+    - implemented prof layout using relative, absolute positioning in [slug].tsx
+
+- Profile Feed
+    * Posts can change often -> load on client side
+    * need api endpoint to gain data via [posts router](./src/server/api/routers/posts.ts)
+        - added a getPostsByUserId that is a publicProcedure allowing us to get required feed based on user's id
+        - created an abstraction that then adds the user data to each post through users and mapping over each post for particular authorId
+        - added a ProfileFeed function that uses GPBUI function via api and renders with PostView
+
 ### WHEN GONE
 - Revisiting app:
     1. start up by visiting `app.planetscale.com` to wake up db
     2. start prisma db `npx prisma db push`
+    3. `npm run dev`
 
 ### CI/CD
 - Settings of Project: Assumption that Deployment Target is Vercel (gitlab configuration)
