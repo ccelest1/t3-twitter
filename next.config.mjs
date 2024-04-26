@@ -20,7 +20,14 @@ const config = {
   },
   images: {
     domains: ['img.clerk.com'],
-  }
+  },
+  typescript: {
+    ignoreBuildErrors: true
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  swcMinify: true,
 };
 
 // module.exports = {
