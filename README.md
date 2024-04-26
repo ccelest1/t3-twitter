@@ -1,4 +1,7 @@
 # Emoji Twitter Clone
+- __APP WON'T WORK AS PLANETSCALE SHUTDOWN HOBBY DB__
+
+
 ## Description
 - Exploring the Create T3 App Structure
     - Documentation
