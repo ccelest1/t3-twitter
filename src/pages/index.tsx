@@ -25,7 +25,6 @@ const CreatePostWizard = () => {
     },
     onError: (e) => {
       const errorMessage = e.data?.zodError?.fieldErrors.content;
-      console.log(errorMessage)
       if (errorMessage && errorMessage[0]) {
         toast.error(errorMessage[0])
       } else {

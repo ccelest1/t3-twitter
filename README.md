@@ -1,7 +1,6 @@
 # Emoji Twitter Clone
 - __APP WON'T WORK AS PLANETSCALE SHUTDOWN HOBBY DB__
 
-
 ## Description
 - Exploring the Create T3 App Structure
     - Documentation
@@ -197,7 +196,7 @@
             // blocks every req, no cached pages, can't get types, no use of trpc
         }
       ```
-    - instead use ssg trcp helper -> preyhdrate ahead of time
+    - instead use ssg trpc helper -> preyhdrate ahead of time
         * [current trpc docs](https://trpc.io/docs/client/nextjs/server-side-helpers)
         * implemented helper in [slug].tsx allowing for improved data retrieval
 
